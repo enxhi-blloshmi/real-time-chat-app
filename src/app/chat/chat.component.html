@@ -1,70 +1,80 @@
-<div class="container">
-  <div class="chat_app">
-    <div id="sidebar" class="left_sidebar">
-      <div class="logo_text">
-        <span>Chat <span class="colored">App</span></span>
+
+
+  <div class="container">
+  
+    <div class="chat_app">
+      <div id="sidebar" class="left_sidebar">
+        <div class="logo_text">
+          <span>Chat <span class="colored">App</span></span>
+        </div>
+  
+        <span class="user_label" *ngIf="roomToBeDisplayed"><i style="color: rgb(172, 40, 40); font-weight:700;">{{roomToBeDisplayed.roomName}}</i>
+  </span>
+        <div id="users_list" class="users_list">
+          <br><strong>Users</strong>
+          <div *ngIf="roomToBeDisplayed">
+            <p *ngFor="let user of roomToBeDisplayed.users">
+              {{user.userName}}
+            </p>
+          </div>
+        </div>
       </div>
+  
+      <div class="chat_area">
+        
+        <div class="chat_bg">
+          <div  #scrollMe id="chat" class="chat">
+            <div *ngIf="messages" >
+                <p *ngFor="let message of messages" (click)="editMessage(message)" class="bubble" [class.me]="isMe(message.userName)" [class.other]="!isMe(message.userName)"> 
+                  <span style="color: rebeccapurple;"><strong>{{message.userName}}</strong></span><br>
+                  <span *ngIf="message.type=='file'" > <img [src]="message.image" height="200 px" width="200px"> </span>
+                  <span *ngIf="message.type=='text'">{{message.userMessage}}</span>
+                </p>
+            </div>
+            <div *ngIf="!messages">
+              <p>No messages yet</p>
+            </div>
+         <!-- <div>            <p>abbbbbbbbbbcdsjklb;cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccdefghijklmnopqrstovxyzc</p>
+         </div> -->
 
-
-      <span class="user_label"><i style="color: rgb(172, 40, 40); font-weight:700;">{{roomToBeDisplayed.roomName}}</i>
-</span>
-      <div id="users_list" class="users_list">
-        <br><strong>Users</strong>
-        <p *ngFor="let user of roomToBeDisplayed.users">
-          {{user.userName}}
-        </p>
+          </div>
+          <div class="chat_input">
+            <form #messageForm=ngForm>
+            <input name="newmessage" type="text" id="messageInput" placeholder="Enter message" [(ngModel)]="newmessage" required/>
+            <input #imageInput type="file" name="image" accept="image/*" (change)="processImage($event)" style="display: none; margin-left: 10px;">
+  
+            <div style="display: inline;">
+              <button class="upload-image" (click)="imageInput.click()"><img src="../../assets/images/upload-image.png" height="20px" width="20px" style="padding-bottom: 0px;"></button>
+            <button id="send_message_btn" class="send_message_btn" (click)="sendMessage()" *ngIf="!edit" [disabled]=!messageForm.valid>
+            SEND
+            </button>
+            <button id="send_message_btn" class="send_message_btn" (click)="sendEditedMessage()" *ngIf="edit" [disabled=!messageForm.valid>
+              EDIT
+              </button>
+            </div>
+            </form>
+          </div>
+        </div>
+      
       </div>
-    </div>
-
-    <div class="chat_area">
-      <div class="chat_bg">
-        <div id="chat" class="chat">
-          <div *ngIf="messages">
-          <p *ngFor="let message of messages" style="background-color: rgb(252, 238, 238); border-radius: 6px; padding: 5px; display: table;"> 
-            <span style="color: rebeccapurple;"><strong>{{message.userName}}</strong></span><br>
-                <span>{{message.userMessage}}</span>
+  
+      <div class="right_sidebar">
+        <span class="room_label">Rooms <button class="refresh-button" (click)="getRooms()"><img src="../../assets/images/refresh-icon.png" alt="refresh-icon" height="15" width="15"></button></span>
+        
+        <div id="rooms_list" class="rooms_list" >
+          <p *ngFor="let room of rooms">
+            {{room.roomName}} 
+            <button *ngIf="room.roomId!=roomToBeDisplayed.roomId" id="id" class="join-room" (click)="joinRoom(room.roomId)">Join</button>
+            <button *ngIf="room.roomId==roomToBeDisplayed.roomId" class="joined-room" [disabled]="true">Joined</button>
           </p>
         </div>
-        <div *ngIf="!messages">
-          <p>No messages yet</p>
-        </div>
-        </div>
-
-        <div class="chat_input">
-          <form #messageForm=ngForm>
-            <label>
-          <input name="newmessage" type="text" id="messageInput" placeholder="Enter message" [(ngModel)]="newmessage" required/>
-          <input #imageInput type="file" name="nam" accept="image/*" (change)="processFile($event)" style="display: none; margin-left: 10px;">
-
-          <div style="display: inline;">
-            <button class="upload-image" (click)="imageInput.click()"><img src="../../assets/images/upload-image.png" height="20px" width="20px" style="padding-bottom: 0px;"></button>
-          </div>  
-          <button id="send_message_btn" class="send_message_btn" (click)="sendMessage()" [disabled] = !messageForm.valid>
-          SEND
-          </button></label>
+  
+        <div class="room_input">
+          <form #newRoomForm=ngForm>
+            <input type="text" name="newroom" id="newroom" [(ngModel)]="newRoomName" placeholder="Create room"/>
+            <button type="submit" id="room_add_icon_holder" class="room_add_icon_holder" (click)="createNewRoom()" [disabled]=!newRoomForm.valid>+</button>
           </form>
         </div>
-
       </div>
     </div>
-
-    <div class="right_sidebar">
-      <span class="room_label">Rooms <button class="refresh-button" (click)="refresh()"><img src="../../assets/images/refresh-icon.png" alt="refresh-icon" height="15" width="15"></button></span>
-      
-      <div id="rooms_list" class="rooms_list" >
-        <p *ngFor="let room of rooms">
-          {{room.roomName}} 
-          <button *ngIf="room.roomId!=roomToBeDisplayed.roomId" id="id" class="join-room" (click)="joinRoom(room.roomId)">Join</button>
-          <button *ngIf="room.roomId==roomToBeDisplayed.roomId" class="joined-room" [disabled]="true">Joined</button>
-        </p>
-      </div>
-
-      <div class="room_input">
-        <form #newRoomForm=ngForm>
-          <input type="text" id="roomInput" name="newr" [(ngModel)]="newRoomName" placeholder="Create room" />
-          <button type="submit" id="room_add_icon_holder" class="room_add_icon_holder" (click)="createNewRoom()" [disabled]=!newRoomForm.valid>+</button>
-        </form>
-      </div>
-    </div>
-  </div>
 </div>

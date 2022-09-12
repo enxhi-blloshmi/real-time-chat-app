@@ -3,8 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Room } from '../Room';
 import { Message } from '../Message';
+import { User } from '../User';
 
-const URL = "http://localhost:8080/api/rooms";
+const URL = "http://localhost:8081/api/rooms";
 @Injectable({
   providedIn: 'root'
 })
@@ -21,11 +22,25 @@ export class RoomService {
   }
 
   getRoomById(id: string): Observable<Room>{
+    console.log(`${URL}/${id}`);
+    
     return this.httpClient.get<Room>(`${URL}/${id}`);
   }
 
   updateRoomMessages(id: string, message: Message): Observable<Room>{
     return this.httpClient.put<Room>(`${URL}/update-messages/${id}`, message);
+  }
+
+  updateUsers(id: string, user: User){
+    return this.httpClient.put<Room>(`${URL}/update-users/${id}`, user);
+  }
+
+  sendFileMessage( id: string, imageFormData:  FormData){
+   return this.httpClient.put<Room>(`${URL}/update-messages-files/${id}`, imageFormData, {observe: "response"});
+  }
+
+  editMessage(roomId: string, messageId: string, message: Message){
+    return this.httpClient.put<Room>(`${URL}/edit-message/${roomId}/${messageId}`, message);
   }
 
   deleteRoomById(id: string): Observable<Room>{
